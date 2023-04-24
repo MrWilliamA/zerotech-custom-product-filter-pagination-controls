@@ -1,0 +1,94 @@
+<style>
+  #pageBtns {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+  }
+  #pageBtns div {
+    margin-right: 20px;
+  }
+  #pageBtns button {
+    background: #000000a6;
+    padding: 4px 10px;
+    margin: 0 5px;
+    border: solid 1px #5a5a5a;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+  }
+
+  #pageBtns #clearFilters {
+    border: none;
+    padding: 0;
+    font-size: 22px;
+  }
+
+  #tooltip {
+    display: none;
+  }
+
+  #clearFiltersContainer {
+    position: relative;
+  }
+
+  #clearFiltersContainer:hover #tooltip {
+    display: block;
+    position: absolute;
+    width: 130px;
+    right: -171%;
+    margin: 0;
+    background: black;
+    padding: 4px 8px;
+  }
+
+  section.grid {
+    margin: 20px 0 120px;
+  }
+
+  #catBtns button p {
+    font-family: Fraulein, OpenSans, Roboto, Oxygen, sans-serif;
+    font-size: 12px;
+    padding: 0 10px 5px;
+    position: relative;
+    top: -2px;
+  }
+
+  .seriesbtn {
+    position: relative;
+    top: 2px;
+    height: 27px;
+  }
+
+  #catBtns .seriesbtn.allbtn p {
+    font-family: 'Public Sans', OpenSans, Roboto, Oxygen, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 26px;
+    letter-spacing: 1px;
+  }
+
+  #catBtns button.seriesbtn p {
+    font-size: 24px;
+    padding: 0;
+    top: -4px;
+    line-height: 0;
+    margin: 0;
+  }
+
+  #pageBtns button.selected {
+    background-color: #e87822;
+  }
+
+  #pageBtns button.selected .orange,
+  #pageBtns button:hover .orange {
+    color: white;
+  }
+
+  .grid-price {
+    height: 40px;
+  }
+
+  .pimage img:hover {
+    filter: brightness(1.5);
+  }
+</style>

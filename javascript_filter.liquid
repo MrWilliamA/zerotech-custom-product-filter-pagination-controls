@@ -1,0 +1,154 @@
+<script>
+  let allProducts = [{% for product in allProducts %}
+      {
+      "name": "{{product.title | escape}}",
+      "photo": "{% if product.attachments['tag:0'].first %}{{product.attachments['tag:0'].first.resizepad['230x230'].url}}
+      {%elsif product.images.first%}
+        {{product.images.first.resizepad['350x350'].url | escape}}
+      {%else%}
+        {{page.attachments['no-image.png'].resizepad['350x350'].url}}{% endif %}",
+      "url": "{{product.url}}",
+      "stock": "{% snippet 'zt-stockstatus' %}",
+      "code": "{{product.code}}",
+      "price": "{{product.user_price | currency }}",
+      "cat": "{% if product.title contains 'VENGEANCE' %} vengeance{%endif%}{% if product.title contains 'THRIVE' %}{% unless product.title contains 'HD'%}thrive {% endunless %}{%endif%}{% if product.title contains 'THRIVE' and product.title contains 'HD' %}thd {%endif%}{% if product.title contains 'TRACE' %}{% unless product.title contains 'ADV'%}trace {% endunless %}{%endif%}{% if product.title contains 'TRACE' and product.title contains 'ADV'%}tadvanced {%endif%}{% unless product.sort_code contains 'ZTBIN' or product.sort_code contains 'VENG' or product.sort_code contains 'THR' or product.sort_code contains 'THD' or product.sort_code contains 'TRAC' or product.sort_code contains 'TRAD'%}accessory {% endunless %}"
+              },{%endfor%}]{% comment %}
+            console.log(allProducts){% endcomment %}
+          let article = '<section class="grid">';
+
+          function displayProductsMarkup(filteredData) {
+            article += '<article>';
+            article += `<div class="pimage"><a href="${
+              product.url
+            }"><img src="${
+              product.photo
+            }" loading="lazy" alt=""/></a></div>`;
+            article += `<div class="title">${
+              product.name
+            }</div>`;
+            article += `<div class="pmeta">SKU: ${
+              product.code
+            } | {% snippet 'av-wish-list-add-remove' %}</div>`;
+            article += `<div class="pstock"><img src="${
+              decodeURI(product.stock)
+            }" alt="" /></div>`;
+            article += `<div>`;
+            article += `<div class="grid-price"><span class="price">${
+              product.price
+            } <span class='tax'>(EX GST)</span></span></div>`;
+            article += '{{addToCartBlockOpen}}';
+            article += `<input type="hidden" name="fast_order[0][item_code]" value="${
+              product.code
+            }" class="item_code" />`;
+            article += '{{addToCartBlockClose}}';
+            article += `<div class="style1"><a href="${
+              product.url
+            }">DETAILS</a></div></div></form>`;
+            article += `</div>`;
+            article += '</article>';
+          }
+
+          let selectedCategories = [];
+
+          const seriesBtn = document.querySelectorAll('.seriesbtn').forEach(btn => {
+            if (window.location.href.includes(btn.value)) {
+              btn.classList.toggle('selected');
+              selectedCategories.push(btn.value);
+            };
+
+            btn.addEventListener('click', event => {
+              let selectedSeries = btn.value;
+              let currentURL = window.location.href;
+              let newURL = currentURL + "?series=" + selectedSeries;
+              let checkAlreadyExists = currentURL.includes("?series=" + selectedSeries);
+
+              if (checkAlreadyExists) {
+                let remove = "?series=" + selectedSeries;
+                let updatedURL = currentURL.replace(remove, '')
+                window.location.href = updatedURL;
+              } else {
+                window.location.href = newURL;
+              }
+
+            })
+          });
+
+          const pageQtyBtns = document.querySelectorAll('#pageQtyBtns button').forEach(item => {
+            if (window.location.href.includes(item.value)) {
+              item.classList.toggle('selected');
+            };
+          });
+
+          let nextpage = 1;
+          document.getElementById('showMore').addEventListener("click", () => {
+            displayProducts(filteredData, nextpage);
+            nextpage++;
+          });
+
+          function productFilter(allProducts) {
+            let pageLimit = parseInt(getPageLimit());
+
+            let seriesFilter = allProducts.filter(obj => selectedCategories.includes(obj.cat));
+
+            if (seriesFilter.length > 0) {
+              sorted = seriesFilter.sort((a, b) => b.price - a.price);
+            } else {
+              sorted = allProducts.sort((a, b) => b.price - a.price);
+            }
+
+            let productPages = [];
+
+            for (let i = 0; i < sorted.length; i += pageLimit) {
+              const productPage = sorted.slice(i, i + pageLimit);
+              productPages.push(productPage)
+            }
+            return productPages;
+          }
+
+          function getPageLimit() {
+            let currentURL = window.location.href;
+            let regex = /&qty=(\d{2,3})/;
+            let matchRegexToURL = currentURL.match(regex)
+            if (matchRegexToURL) {
+              return matchRegexToURL[1]
+            } else {
+              return 12
+            }
+          }
+
+          function ztPaginationShow(show) {
+            let currentURL = window.location.href;
+            let showNum = "&qty=" + show;
+            let newURL = currentURL + showNum;
+            let updatedURL = currentURL.replace(/&qty=(\d{1,6})/, '&qty=' + show).replace(/&per_page=(\d{1,6})/, '&per_page=200');
+            window.location.href = updatedURL;
+          }
+
+          let filteredData = productFilter(allProducts);
+
+          function displayProducts(filteredData, page) {
+
+            if (filteredData[page] === null || filteredData[page] === undefined) {
+              document.getElementById('showMore').style.filter = "grayscale(1) opacity(0.5)";
+            } else {
+              for (product of filteredData[page]) {
+                displayProductsMarkup(product);
+              }
+            }
+            document.getElementById("productGridContainer").innerHTML = article;
+          }
+
+          function clearFilters(event) {
+            let url = window.location.href;
+            let regex = url.match(/&qty=(\d{1,3})/);
+
+
+            if (url.includes("series") || regex[1] != 12) {
+              window.location.href = "/zerotech/?search&per_page=200/&qty=12";
+            } else {
+              event.target.disabled = true;
+            }
+          }
+
+          displayProducts(filteredData, 0);
+</script>
